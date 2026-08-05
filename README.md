@@ -38,3 +38,7 @@ npm run build
 
 - REST Countries API
 - World Atlas TopoJSON
+
+## Live map
+
+This version includes OpenStreetMap using React Leaflet. Selecting a country moves the map and displays a marker.
