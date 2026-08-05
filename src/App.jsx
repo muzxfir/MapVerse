@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import MapView from "./components/MapView";
 import {
   ComposableMap,
   Geographies,
@@ -401,6 +402,8 @@ export default function App() {
                   {selectedCountry.timezones?.slice(0, 3).join(", ") || "N/A"}
                 </strong>
               </div>
+
+              <MapView country={selectedCountry} />
 
               <a
                 className="maps-link"

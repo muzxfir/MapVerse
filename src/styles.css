@@ -660,3 +660,79 @@ footer {
     height: 420px;
   }
 }
+
+
+.leaflet-map-card {
+  position: relative;
+  height: 260px;
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-hover);
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.leaflet-map-label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 500;
+  display: grid;
+  gap: 2px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+.leaflet-map-label span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.leaflet-map-label strong {
+  font-size: 13px;
+}
+
+.custom-country-marker {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.96);
+  border: 3px solid var(--accent);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+}
+
+.custom-country-marker span {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.leaflet-control-zoom a {
+  color: #102235 !important;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  color: #102235;
+  background: #ffffff;
+}
+
+@media (max-width: 760px) {
+  .leaflet-map-card {
+    height: 240px;
+  }
+}
