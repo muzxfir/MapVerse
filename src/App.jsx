@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import MapView from "./components/MapView";
 
 const COUNTRY_API =
-  "https://restcountries.com/v3.1/all?fields=name,cca2,cca3,capital,region,subregion,population,area,flags,currencies,languages,timezones,maps,latlng";
+  "https://restcountries.com/v3.1/all?fields=name,cca2,cca3,capital,region,subregion,population,area,flags,currencies,languages,timezones,maps,latlng,demonyms,idd,tld,car,independent,status,continents";
 
 function formatNumber(value) {
   return Number.isFinite(value)
@@ -12,8 +12,8 @@ function formatNumber(value) {
 
 function getCurrency(country) {
   if (!country?.currencies) return "N/A";
-  return Object.values(country.currencies)
-    .map((item) => `${item.name}${item.symbol ? ` (${item.symbol})` : ""}`)
+  return Object.entries(country.currencies)
+    .map(([code, item]) => `${item.name}${item.symbol ? ` (${item.symbol})` : ""} · ${code}`)
     .join(", ");
 }
 
@@ -21,6 +21,23 @@ function getLanguages(country) {
   return country?.languages
     ? Object.values(country.languages).join(", ")
     : "N/A";
+}
+
+function getNationality(country) {
+  return (
+    country?.demonyms?.eng?.m ||
+    country?.demonyms?.eng?.f ||
+    country?.demonyms?.fra?.m ||
+    "N/A"
+  );
+}
+
+function getCallingCode(country) {
+  const root = country?.idd?.root || "";
+  const suffixes = country?.idd?.suffixes || [];
+  if (!root) return "N/A";
+  if (!suffixes.length) return root;
+  return suffixes.slice(0, 4).map((suffix) => `${root}${suffix}`).join(", ");
 }
 
 export default function App() {
@@ -72,17 +89,27 @@ export default function App() {
 
     return countries
       .filter((country) => {
-        const common = country.name.common.toLowerCase();
-        const official = country.name.official.toLowerCase();
+        const currencies = country.currencies
+          ? Object.keys(country.currencies).join(" ").toLowerCase()
+          : "";
+        const languages = country.languages
+          ? Object.values(country.languages).join(" ").toLowerCase()
+          : "";
+        const capital = country.capital?.join(" ").toLowerCase() || "";
+        const nationality = getNationality(country).toLowerCase();
 
-        return (
-          common.includes(value) ||
-          official.includes(value) ||
-          country.cca2.toLowerCase() === value ||
-          country.cca3.toLowerCase() === value
-        );
+        return [
+          country.name.common.toLowerCase(),
+          country.name.official.toLowerCase(),
+          country.cca2.toLowerCase(),
+          country.cca3.toLowerCase(),
+          capital,
+          currencies,
+          languages,
+          nationality,
+        ].some((item) => item.includes(value));
       })
-      .slice(0, 8);
+      .slice(0, 10);
   }, [countries, query]);
 
   function chooseCountry(country) {
@@ -112,9 +139,9 @@ export default function App() {
       <section className="hero">
         <div>
           <p className="eyebrow">INTERACTIVE WORLD EXPLORER</p>
-          <h1>Explore the world on a live map.</h1>
+          <h1>Explore countries with complete details.</h1>
           <p className="hero-copy">
-            Search a country and the map will automatically move to that location.
+            Search by country, capital, nationality, currency or language.
           </p>
         </div>
 
@@ -141,7 +168,7 @@ export default function App() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search country..."
+              placeholder="Search country, nationality, capital..."
             />
 
             {query && (
@@ -164,7 +191,9 @@ export default function App() {
                       />
                       <span>
                         <strong>{country.name.common}</strong>
-                        <small>{country.region}</small>
+                        <small>
+                          {getNationality(country)} · {country.capital?.[0] || "No capital"}
+                        </small>
                       </span>
                     </button>
                   ))
@@ -207,6 +236,11 @@ export default function App() {
                 </div>
               </div>
 
+              <div className="nationality-banner">
+                <span>Nationality</span>
+                <strong>{getNationality(selectedCountry)}</strong>
+              </div>
+
               <div className="detail-grid">
                 <article>
                   <span>Capital</span>
@@ -221,8 +255,30 @@ export default function App() {
                   <strong>{formatNumber(selectedCountry.area)} km²</strong>
                 </article>
                 <article>
-                  <span>Subregion</span>
-                  <strong>{selectedCountry.subregion || "N/A"}</strong>
+                  <span>Continent</span>
+                  <strong>{selectedCountry.continents?.join(", ") || "N/A"}</strong>
+                </article>
+                <article>
+                  <span>Calling Code</span>
+                  <strong>{getCallingCode(selectedCountry)}</strong>
+                </article>
+                <article>
+                  <span>Driving Side</span>
+                  <strong className="capitalize">{selectedCountry.car?.side || "N/A"}</strong>
+                </article>
+                <article>
+                  <span>Internet Domain</span>
+                  <strong>{selectedCountry.tld?.join(", ") || "N/A"}</strong>
+                </article>
+                <article>
+                  <span>Independent</span>
+                  <strong>
+                    {selectedCountry.independent === true
+                      ? "Yes"
+                      : selectedCountry.independent === false
+                      ? "No"
+                      : "N/A"}
+                  </strong>
                 </article>
               </div>
 
@@ -237,9 +293,26 @@ export default function App() {
               </div>
 
               <div className="long-detail">
-                <span>Time zones</span>
+                <span>Region & Subregion</span>
                 <strong>
-                  {selectedCountry.timezones?.slice(0, 3).join(", ") || "N/A"}
+                  {selectedCountry.region || "N/A"}
+                  {selectedCountry.subregion ? ` · ${selectedCountry.subregion}` : ""}
+                </strong>
+              </div>
+
+              <div className="long-detail">
+                <span>Coordinates</span>
+                <strong>
+                  {selectedCountry.latlng?.length === 2
+                    ? `${selectedCountry.latlng[0].toFixed(2)}, ${selectedCountry.latlng[1].toFixed(2)}`
+                    : "N/A"}
+                </strong>
+              </div>
+
+              <div className="long-detail">
+                <span>Time Zones</span>
+                <strong>
+                  {selectedCountry.timezones?.slice(0, 4).join(", ") || "N/A"}
                 </strong>
               </div>
 

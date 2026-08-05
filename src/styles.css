@@ -771,3 +771,33 @@ footer {
     border-radius: 20px;
   }
 }
+
+
+.nationality-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(65, 217, 195, 0.1);
+  border: 1px solid rgba(65, 217, 195, 0.24);
+}
+
+.nationality-banner span {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nationality-banner strong {
+  color: var(--accent);
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
